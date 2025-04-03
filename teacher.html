@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="teacher.css">
+    <title>Teacher Dashboard</title>
+</head>
+
+<body>
+    <div class="tech-con">
+        <div class="header">
+            <img src="images/freepik__the-style-is-candid-image-photography-with-natural__4443.png" alt="Header Image">
+            <div id="nav-buttons"></div>
+        </div>
+        <div class="menu">
+            <div class="profile">
+                <img src="images/profile.png" alt="Profile Image">
+                <p id="userEmail">Checking user...</p>
+            </div>
+            <div class="menuoptions">
+                <ul><a href="index.html" id="home"><i class="fa fa-home"></i>Home</a></ul>
+                <ul><a href="#" id="profile"><img src="images/add.png" alt="Profile Icon"> Profile</a></ul>
+                <ul><a href="#" id="scheduleappointment"><img src="images/add.png"
+                            alt="Schedule Icon">ScheduleAppointment</a></ul>
+                <ul><a href="#" id="studentRequests"><img src="images/add.png" alt="Requests Icon"> Student Requests</a>
+                </ul>
+                <ul><a href="#" id="Messages"><img src="images/add.png" alt="Messages Icon"> Messages</a></ul>
+            </div>
+        </div>
+        <div id="content" class="content">Select an option from the menu.</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWIR8ZzkXR9bK6LiO4QSQRuqbPLHgrAxQ",
+            authDomain: "student-8d36e.firebaseapp.com",
+            projectId: "student-8d36e",
+            storageBucket: "student-8d36e.appspot.com",
+            messagingSenderId: "693544198236",
+            appId: "1:693544198236:web:60dac4a00533790c9c4699"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        function updateNavbar(user) {
+            const navButtons = document.getElementById("nav-buttons");
+            if (!navButtons) return;
+
+            if (user) {
+                navButtons.innerHTML = `<a href="#" id="logout-btn" class="btn primary">Logout</a>`;
+                document.getElementById("logout-btn").addEventListener("click", async () => {
+                    try {
+                        await signOut(auth);
+                        alert("You have logged out.");
+                        updateNavbar(null);
+                    } catch (error) {
+                        console.error("Logout Error:", error);
+                    }
+                });
+            } else {
+                navButtons.innerHTML = `<a href="#" id="auth-btn" class="btn primary">Login</a>`;
+            }
+        }
+
+        async function showProfile(user) {
+            if (!user) return;
+
+            const docRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+
+                document.getElementById("content").innerHTML = `
+        <h2>Profile</h2>
+        <div id="view-profile">
+            <table border="1" cellpadding="10">
+                <tr>
+                    <th>Email</th>
+                    <td>${user.email}</td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <td>${userData.name || "Not available"}</td>
+                </tr>
+                <tr>
+                    <th>Subject</th>
+                    <td>${userData.subject || "Not available"}</td>
+                </tr>
+                <tr>
+                    <th>Phone</th>
+                    <td>${userData.mobile || "Not available"}</td>
+                </tr>
+                <tr>
+                    <th>Experience</th>
+                    <td>${userData.experience || "Not available"}</td>
+                </tr>
+                <tr>
+                    <th>Current Working Place</th>
+                    <td>${userData.workingPlace || "Not available"}</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td>${userData.description || "Not available"}</td>
+                </tr>
+                <tr>
+                    <th>Date of Birth</th>
+                    <td>${userData.dob || "Not available"}</td>
+                </tr>
+            </table>
+            <button id="edit-profile">Edit</button>
+        </div>
+        
+        <div id="edit-profile-section" style="display:none;">
+            <label>Name: <input type="text" id="name" value="${userData.name || ""}"></label><br>
+            <label>Subject: <input type="text" id="subject" value="${userData.subject || ""}"></label><br>
+            <label>Phone: <input type="text" id="mobile" value="${userData.mobile || ""}"></label><br>
+            <label>Experience: <input type="text" id="experience" value="${userData.experience || ""}"></label><br>
+            <label>Current Working Place: <input type="text" id="workingPlace" value="${userData.workingPlace || ""}"></label><br>
+            <label>Description: <textarea id="description">${userData.description || ""}</textarea></label><br>
+            <label>Date of Birth: <input type="date" id="dob" value="${userData.dob || ""}"></label><br>
+            <button id="save-profile">Save Changes</button>
+            <button id="cancel-edit">Cancel</button>
+        </div>
+        `;
+
+                // Show Edit Section
+                document.getElementById("edit-profile").addEventListener("click", () => {
+                    document.getElementById("view-profile").style.display = "none";
+                    document.getElementById("edit-profile-section").style.display = "block";
+                });
+
+                // Cancel Editing
+                document.getElementById("cancel-edit").addEventListener("click", () => {
+                    document.getElementById("view-profile").style.display = "block";
+                    document.getElementById("edit-profile-section").style.display = "none";
+                });
+
+                // Save Profile Changes
+                document.getElementById("save-profile").addEventListener("click", async () => {
+                    const updatedData = {
+                        name: document.getElementById("name").value,
+                        subject: document.getElementById("subject").value,
+                        mobile: document.getElementById("mobile").value, // Fixed key
+                        experience: document.getElementById("experience").value,
+                        workingPlace: document.getElementById("workingPlace").value,
+                        description: document.getElementById("description").value,
+                        dob: document.getElementById("dob").value
+                    };
+
+                    await updateDoc(docRef, updatedData);
+                    alert("Profile updated successfully.");
+                    showProfile(user); // Refresh profile
+                });
+            } else {
+                document.getElementById("content").innerHTML = "<p>No profile data found.</p>";
+            }
+        }
+
+        async function showMessages() {
+            const user = auth.currentUser;
+            if (!user) {
+                document.getElementById("content").innerHTML = "<p>You need to be logged in to view messages.</p>";
+                return;
+            }
+
+            const messagesRef = collection(db, "messages");
+            const querySnapshot = await getDocs(messagesRef);
+
+            let messagesHTML = "<h2>Messages</h2><table border='1' cellpadding='10'>";
+            messagesHTML += `
+                <tr>
+                    <th>From</th>
+                    <th>Sender Email</th>
+                    <th>Message</th>
+                    <th>Sent At</th>
+                </tr>`;
+
+            let messagesFound = false;
+
+            querySnapshot.forEach((doc) => {
+                const messageData = doc.data();
+                if (messageData.teacherEmail === user.email) {
+                    messagesHTML += `
+            <tr>
+                <td>${messageData.senderName}</td>
+                <td>${messageData.senderEmail}</td>
+                <td>${messageData.message}</td>
+                <td>${new Date(messageData.timestamp.seconds * 1000).toLocaleString()}</td>
+            </tr>`;
+                    messagesFound = true;
+                }
+            });
+
+            if (!messagesFound) {
+                messagesHTML = "<p>No messages found.</p>";
+            } else {
+                messagesHTML += "</table>";
+            }
+
+            document.getElementById("content").innerHTML = messagesHTML;
+        }
+        async function showStudentRequests() {
+            const user = auth.currentUser;
+            if (!user) {
+                document.getElementById("content").innerHTML = "<p>You need to be logged in to view student requests.</p>";
+                return;
+            }
+
+            const requestsRef = collection(db, "appointments"); // Assuming "appointments" is the Firestore collection for requests
+            const querySnapshot = await getDocs(requestsRef);
+
+            let requestHTML = "<h2>Student Appointment Requests</h2><table border='1' cellpadding='10'>";
+            requestHTML += `
+        <tr>
+            <th>Student Name</th>
+            <th>Student Email</th>
+            <th>Date/Time</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    `;
+
+            let requestsFound = false; // Flag to check if requests exist
+
+            querySnapshot.forEach((doc) => {
+                const requestData = doc.data();
+                if (requestData.teacherEmail === user.email) { // Only show requests for the logged-in teacher
+                    requestHTML += `
+                <tr>
+                    <td>${requestData.studentName}</td>
+                    <td>${requestData.studentEmail}</td>
+                    <td>${requestData.startTime}</td>
+                    <td>${requestData.status}</td>
+                    <td>
+                        <button class="accept-btn" data-id="${doc.id}">Accept</button>
+                        <button class="reject-btn" data-id="${doc.id}">Reject</button>
+                    </td>
+                </tr>
+            `;
+                    requestsFound = true;
+                }
+            });
+
+            if (!requestsFound) {
+                requestHTML = "<p>No appointment requests found.</p>";
+            } else {
+                requestHTML += "</table>";
+            }
+
+            document.getElementById("content").innerHTML = requestHTML;
+
+            // Handle Accept and Reject buttons
+            document.querySelectorAll(".accept-btn").forEach((btn) => {
+                btn.addEventListener("click", async (e) => {
+                    const docId = e.target.dataset.id;
+                    await updateDoc(doc(db, "appointments", docId), { status: "Accepted" });
+                    alert("Appointment accepted.");
+                    showStudentRequests(); // Refresh the list
+                });
+            });
+
+            document.querySelectorAll(".reject-btn").forEach((btn) => {
+                btn.addEventListener("click", async (e) => {
+                    const docId = e.target.dataset.id;
+                    await updateDoc(doc(db, "appointments", docId), { status: "Rejected" });
+                    alert("Appointment rejected.");
+                    showStudentRequests(); // Refresh the list
+                });
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            onAuthStateChanged(auth, (user) => {
+                document.getElementById("studentRequests").addEventListener("click", (e) => {
+                    e.preventDefault();
+                    showStudentRequests();
+                });
+            });
+        });
+        async function showScheduledAppointments() {
+            const user = auth.currentUser;
+            if (!user) {
+                document.getElementById("content").innerHTML = "<p>You need to be logged in to view scheduled appointments.</p>";
+                return;
+            }
+
+            const appointmentsRef = collection(db, "appointments");
+            const querySnapshot = await getDocs(appointmentsRef);
+
+            let appointments = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.teacherEmail === user.email && data.status === "Accepted") {
+                    appointments.push({
+                        id: doc.id,
+                        studentName: data.studentName,
+                        studentEmail: data.studentEmail,
+                        startTime: data.startTime,
+                        status: data.status
+                    });
+                }
+            });
+
+            // Sort appointments by startTime
+            appointments.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+            let scheduleHTML = "<h2>Scheduled Appointments</h2>";
+            if (appointments.length === 0) {
+                scheduleHTML += "<p>No scheduled appointments found.</p>";
+            } else {
+                scheduleHTML += "<table border='1' cellpadding='10'>";
+                scheduleHTML += `
+            <tr>
+                <th>Student Name</th>
+                <th>Student Email</th>
+                <th>Date/Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        `;
+
+                appointments.forEach((appointment) => {
+                    scheduleHTML += `
+            <tr>
+                <td>${appointment.studentName}</td>
+                <td>${appointment.studentEmail}</td>
+                <td>${new Date(appointment.startTime).toLocaleString()}</td>
+                <td id="status-${appointment.id}">${appointment.status}</td>
+                <td>
+                    <button class="complete-btn" data-id="${appointment.id}">Complete</button>
+                    <button class="delete-btn" data-id="${appointment.id}">Delete</button>
+                </td>
+            </tr>
+        `;
+                });
+
+                scheduleHTML += "</table>";
+            }
+
+            document.getElementById("content").innerHTML = scheduleHTML;
+
+            // Handle Complete Button
+            document.querySelectorAll(".complete-btn").forEach((btn) => {
+                btn.addEventListener("click", async (e) => {
+                    const docId = e.target.dataset.id;
+                    await updateDoc(doc(db, "appointments", docId), { status: "Completed" });
+                    document.getElementById(`status-${docId}`).innerText = "Completed";
+                    alert("Appointment marked as completed.");
+                });
+            });
+
+            // Handle Delete Button
+            document.querySelectorAll(".delete-btn").forEach((btn) => {
+                btn.addEventListener("click", async (e) => {
+                    const docId = e.target.dataset.id;
+                    if (confirm("Are you sure you want to delete this appointment?")) {
+                        await deleteDoc(doc(db, "appointments", docId));
+                        alert("Appointment deleted.");
+                        showScheduledAppointments(); // Refresh list
+                    }
+                });
+            });
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+            onAuthStateChanged(auth, async (user) => {
+                updateNavbar(user);
+                const userEmailElement = document.getElementById("userEmail");
+
+                if (user) {
+                    if (userEmailElement) {
+                        userEmailElement.innerText = ` ${user.email}`;
+                    }
+
+                    // Fetch user role from Firestore
+                    const userRef = doc(db, "users", user.uid);
+                    const userSnap = await getDoc(userRef);
+
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        if (userData.role !== "teacher") {
+                            alert("Access Denied: You are not authorized to view this page.");
+                            window.location.href = "index.html"; // Redirect non-teachers
+                            return;
+                        }
+                    } else {
+                        alert("User role not found. Contact admin.");
+                        window.location.href = "index.html";
+                        return;
+                    }
+
+                    // Add event listeners for teacher dashboard features
+                    document.getElementById("profile").addEventListener("click", (e) => {
+                        e.preventDefault();
+                        showProfile(user);
+                    });
+
+                    document.getElementById("Messages").addEventListener("click", (e) => {
+                        e.preventDefault();
+                        showMessages();
+                    });
+
+                    document.getElementById("scheduleappointment").addEventListener("click", (e) => {
+                        e.preventDefault();
+                        showScheduledAppointments();
+                    });
+
+                    document.getElementById("studentRequests").addEventListener("click", (e) => {
+                        e.preventDefault();
+                        showStudentRequests();
+                    });
+
+                } else {
+                    setTimeout(() => {
+                        if (!window.location.href.includes("index.html")) {
+                            window.location.href = "index.html";
+                        }
+                    }, 500);
+                }
+            });
+        });
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <title>TutorTime</title>
+    <link rel="stylesheet" href="index.css">
+    <script>
+        function openPopup(popupId, event = null) {
+            if (event) event.preventDefault();
+            document.getElementById(popupId).style.display = "block";
+        }
+
+        function closePopup(popupId) {
+            document.getElementById(popupId).style.display = "none";
+        }
+
+        function switchPopup(closeId, openId, event = null) {
+            if (event) event.preventDefault();
+            closePopup(closeId);
+            openPopup(openId);
+        }
+    </script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <img src="images/freepik__the-style-is-candid-image-photography-with-natural__4443.png">
+        <div id="nav-buttons">
+        </div>
+    </nav>
+
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <h2>Seamless Appointments for Teachers & Students</h2>
+        <p>Schedule and manage your appointments with ease.</p>
+    </header>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="feature-box">
+            <h3>Easy Scheduling</h3>
+            <p>Book appointments with teachers in just a few clicks.</p>
+        </div>
+        <div class="feature-box">
+            <h3>Real-Time Updates</h3>
+            <p>Stay informed with instant notifications.</p>
+        </div>
+        <div class="feature-box">
+            <h3>Secure & Reliable</h3>
+            <p>Your data is safe and protected.</p>
+        </div>
+    </section>
+    <section class="details">
+        <div class="d-img">
+            <img src="images/A List of the Top Websites for Cheap College Textbooks.jpeg">
+        </div>
+        <div class="d-text">
+            <P>- **For Students:**
+                - Students can browse available time slots and book appointments with their preferred teachers.<br>
+                - They can send messages detailing the purpose of the meeting.<br>
+                - Rescheduling and cancellation options are available if needed.<br><br>
+
+                - **For Teachers:**
+                - Teachers can manage their availability by setting up their schedules.<br>
+                - They can accept or decline appointment requests based on their availability.<br>
+                - Teachers receive notifications for new bookings, cancellations, and reschedules.<br>
+                - They can communicate directly with students to clarify appointment details.</P>
+
+        </div>
+
+    </section>
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Appointment Booking System | All Rights Reserved</p>
+            <div class="social-icons">
+                <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Login Popup -->
+    <div id="loginPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup('loginPopup')">&times;</span>
+            <h2>Login</h2>
+            <form id="loginForm">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+                <button type="submit" class="btn primary">Login</button>
+                <br /><br />
+                <p>Don't have an account? <a href="#"
+                        onclick="switchPopup('loginPopup', 'registerPopup', event)"><span>Click
+                            Register</span></a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Popup -->
+    <div id="registerPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup('registerPopup')">&times;</span>
+            <h2>Register</h2>
+            <form id="registerForm">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" required>
+                <label for="reg-email">Email:</label>
+                <input type="email" id="reg-email" required>
+                <label for="user-role">Register As:</label>
+                <select id="user-role" required>
+                    <option value="" disabled selected>Select your role</option>
+                    <option value="admin">Admin</option>
+                    <option value="student">Student</option>
+                </select>
+                <label for="reg-password">Password:</label>
+                <input type="password" id="reg-password" required>
+                <label for="con-password">Confirm Password:</label>
+                <input type="password" id="con-password" required>
+                <button type="submit" class="btn primary">Register</button>
+                <br /><br />
+                <p>Already have an account? <a href="#"
+                        onclick="switchPopup('registerPopup', 'loginPopup', event)"><span>Login</span></a></p>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWIR8ZzkXR9bK6LiO4QSQRuqbPLHgrAxQ",
+            authDomain: "student-8d36e.firebaseapp.com",
+            projectId: "student-8d36e",
+            storageBucket: "student-8d36e.appspot.com",
+            messagingSenderId: "693544198236",
+            appId: "1:693544198236:web:60dac4a00533790c9c4699"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("registerForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const nameInput = document.getElementById("name");
+                const emailInput = document.getElementById("reg-email");
+                const passwordInput = document.getElementById("reg-password");
+                const confirmPasswordInput = document.getElementById("con-password");
+                const roleInput = document.getElementById("user-role");
+
+                const name = nameInput.value.trim();
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                const role = roleInput.value;
+
+                if (!name || !email || !password || !confirmPassword || !role) {
+                    alert("Please fill in all fields.");
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    alert("Passwords do not match!");
+                    return;
+                }
+
+                try {
+                    if (role === "student") {
+                        // Store student details in "pending_requests" collection
+                        await setDoc(doc(db, "pending_requests", email), { name, email, role });
+                        alert("Registration request submitted. Waiting for admin approval.");
+                    } else {
+                        // Register teachers/admins directly
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                        await setDoc(doc(db, "users", userCredential.user.uid), { name, email, role });
+
+                        alert("Registration successful!");
+                    }
+
+                    // Clear form fields
+                    nameInput.value = "";
+                    emailInput.value = "";
+                    passwordInput.value = "";
+                    confirmPasswordInput.value = "";
+                    roleInput.value = "";
+
+                    closePopup('registerPopup');
+                } catch (error) {
+                    console.error("Registration Error:", error);
+                    alert(error.message);
+                }
+            });
+        });
+
+        // User Login
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+
+            if (!email || !password) {
+                alert("Please enter your email and password.");
+                return;
+            }
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+
+                if (!userDoc.exists()) {
+                    alert("User not found in Firestore. Please contact support.");
+                    return;
+                }
+
+                const userData = userDoc.data();
+                alert("Login successful!");
+
+                // Redirect based on role
+                switch (userData.role) {
+                    case "admin":
+                        window.location.href = "admin.html";
+                        break;
+                    case "teacher":
+                        window.location.href = "teacher.html";
+                        break;
+                    case "student":
+                        window.location.href = "student.html";
+                        break;
+                    default:
+                        alert("Role not recognized. Please contact support.");
+                        return;
+                }
+
+                closePopup('loginPopup');
+            } catch (error) {
+                console.error("Login Error:", error);
+                alert("Login failed: " + error.message);
+            }
+        });
+
+        // Update Navbar Based on Authentication State
+        async function updateNavbar(user) {
+            const navButtons = document.getElementById("nav-buttons");
+            if (!navButtons) return;
+
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                const userData = userDoc.exists() ? userDoc.data() : {};
+
+                if (userData.role === "teacher") {
+                    navButtons.innerHTML = `
+                        <a href="teacher.html" class="btn ghost">Dashboard</a>
+                        <a href="#" id="logout-btn" class="btn primary">Logout</a>
+                    `;
+                } else {
+                    navButtons.innerHTML = `
+                        <a href="Student.html" class="btn ghost">Book Appointment</a>
+                        <a href="#" id="logout-btn" class="btn primary">Logout</a>
+                    `;
+                }
+                document.getElementById("logout-btn").addEventListener("click", async () => {
+                    try {
+                        await signOut(auth);
+                        alert("You have logged out.");
+                        updateNavbar(null);
+                    } catch (error) {
+                        console.error("Logout Error:", error);
+                    }
+                });
+            } else {
+                navButtons.innerHTML = `
+                    <a href="#" class="btn ghost">Book Appointment</a>
+                    <a href="#" id="auth-btn" class="btn primary" onclick="openPopup('loginPopup', event)">Login</a>
+                `;
+            }
+        }
+
+
+        onAuthStateChanged(auth, (user) => {
+            updateNavbar(user);
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,221 @@
+/* Main Admin Container */
+.admin-con {
+    width: 100%;
+    height: 100vh; 
+    display: grid;
+    grid-template-rows: 100px auto; 
+    grid-template-columns: 300px auto; 
+    border-radius: 10px;
+}
+
+/* Header */
+.header {
+    grid-column: 1 / span 2;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #6A0DAD; /* Deep Purple */
+    padding: 15px 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    color: white;
+
+}
+.header img {
+    width: 300px;
+    height: auto;
+}
+
+.header .btn {
+    text-decoration: none;
+    padding: 8px 15px;
+    margin-left: 10px;
+    border-radius: 5px;
+    color: white;
+}
+
+.btn.primary {
+    background: #20C997; /* Teal */
+    border: none;
+}
+
+/* Sidebar / Menu */
+.menu {
+    color: black;
+    border-right: 1px solid black;
+    background-color:white;
+}
+.menu .profile{
+    display: flex;
+    border-bottom: black;
+    background-color: whitesmoke;
+    padding: 5px;
+    border-radius: 10px;
+}
+.menu p{
+    font-weight: bold;
+}
+.menu img{
+    width:40px;
+    height: 40px;
+}
+.menu ul{
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    background-color: whitesmoke;
+    height: 50px;
+    text-align: left;
+    margin: 2px;
+}
+.menu ul img{
+    width: 20px;
+    height: 20px;
+}
+.menu ul a {
+    text-decoration: none;
+    color: black;
+    display: block; 
+    padding: 10px 0;
+    margin-top: 10px;
+}
+
+
+/* Content Section */
+.content {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    margin: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Add Teacher Form */
+form {
+    max-width: 400px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+form h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+form label {
+    display: block;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #218838;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+table th {
+    background-color:whitesmoke;
+    color: black;
+    padding: 12px;
+    text-align: left;
+    font-weight: bold;
+}
+
+table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table tr:hover {
+    background-color: #d0e2ff;
+}
+#searchTeacher {
+    width: 100%;
+    max-width: 400px; 
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s;
+}
+
+#searchTeacher:focus {
+    border-color: #007bff; 
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+#searchTeacher::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+button {
+    padding: 8px 15px;
+    background-color: #d5d3d3;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+/* Responsive Table */
+@media screen and (max-width: 600px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+
+
+/* Responsive Sidebar */
+@media (max-width: 768px) {
+    .admin-con {
+        grid-template-columns: 1fr; /* Collapse sidebar */
+    }
+    .menu {
+        display: none; /* Hide sidebar */
+    }
+}

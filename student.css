@@ -1,0 +1,340 @@
+.tech-con {
+    width: 100%;
+    height: 100vh; 
+    display: grid;
+    grid-template-rows: 100px auto; 
+    grid-template-columns: 300px auto; 
+    border-radius: 10px;
+}
+/* Header */
+.header {
+    grid-column: 1 / span 2;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #6A0DAD; 
+    padding: 15px 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    color: white;
+
+}
+.header img {
+    width: 300px;
+    height: auto;
+}
+
+.header .btn {
+    text-decoration: none;
+    padding: 8px 15px;
+    margin-left: 10px;
+    border-radius: 5px;
+    color: white;
+}
+
+.btn.primary {
+    background: #20C997;
+    border: none;
+}
+/* Sidebar / Menu */
+.menu {
+    color: black;
+    border-right: 1px solid black;
+    background-color:white;
+}
+.menu .profile{
+    display: flex;
+    border-bottom: black;
+    background-color: whitesmoke;
+    padding: 5px;
+    border-radius: 10px;
+}
+.menu p{
+    font-weight: bold;
+}
+.menu img{
+    width:40px;
+    height: 40px;
+}
+.menu ul{
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    background-color: whitesmoke;
+    height: 50px;
+    text-align: left;
+    margin: 2px;
+}
+.menu ul img{
+    width: 20px;
+    height: 20px;
+}
+.menu ul a {
+    text-decoration: none;
+    color: black;
+    display: block; 
+    margin-top: 10px; 
+}
+.content{
+    overflow: auto;
+}
+/* Search Input */
+.searchcon {
+    margin: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+    width: 70%;
+    border: 2px solid #4CAF50;
+    border-radius: 30px;
+    outline: none;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+}
+
+/* On focus, change border color and add glow */
+.searchcon:focus {
+    border-color: #45a049;
+    box-shadow: 0 0 8px rgba(72, 191, 47, 0.5);
+}
+
+/* Search Button */
+.btn.primary {
+    padding: 12px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover Effect on Button */
+.btn.primary:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+/* Active Button Effect */
+.btn.primary:active {
+    background-color: #388e3c;
+    transform: translateY(0);
+}
+
+/* Teacher Cards */
+/* Style for teacher cards */
+.teacher-card {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin: 15px 0;
+    cursor: pointer;
+}
+
+.teacher-info h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.teacher-info p {
+    font-size: 1em;
+    margin: 5px 0;
+}
+
+.teacher-details,.mes-but,.submit {
+    margin-top: 15px;
+    font-size: 0.9em;
+    background-color: #f4f4f4;
+    padding: 10px;
+}
+
+.toggle-details-btn,.mes-but,.submit {
+    background-color: #3498db;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.toggle-details-btn:hover {
+    background-color: #2980b9;
+}
+.submit:hover {
+    background-color: #2980b9;
+}
+.mes-but:hover {
+    background-color: #2980b9;
+}
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto; /* Centering modal */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Can be adjusted */
+    max-width: 500px; /* Limiting max width */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Close Button */
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Close Button Hover */
+.close-btn:hover,
+.close-btn:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    margin: 8px 0 4px;
+    font-weight: bold;
+}
+
+form input,
+form textarea {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    width: 95%;
+}
+
+form input:focus,
+form textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Button Styling */
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
+    color: #333;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+td {
+    background-color: #fff;
+    color: #555;
+}
+
+/* Alternate row color */
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Hover effect */
+tr:hover {
+    background-color: #f1f1f1;
+    transition: 0.3s;
+}
+
+/* Caption Styling */
+caption {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Button Styling */
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    th, td {
+        padding: 10px;
+    }
+
+    button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .modal-content {
+        width: 90%;
+        padding: 15px;
+    }
+}

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="student.css">
+    <title>Student Dashboard</title>
+</head>
+
+<body>
+    <div class="tech-con">
+        <div class="header">
+            <img src="images/freepik__the-style-is-candid-image-photography-with-natural__4443.png">
+            <div id="nav-buttons"></div>
+        </div>
+        <div class="menu">
+            <div class="profile"><img src="images/profile.png">
+                <p id="userEmail">Checking user...</p>
+            </div>
+            <div class="menuoptions">
+                <ul><a href="index.html" id="home"><i class="fa fa-home"></i>Home</a></ul>
+                <ul><a href="#" id="myappointment">My Appointment</a></ul>
+                <ul><a href="#" id="teacher">Teachers</a></ul>
+            </div>
+        </div>
+        <div id="content" class="content">
+            Select an option from the menu.
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Send Message</h2>
+            <form id="messageForm">
+                <label>Sender Email*:</label>
+                <input type="email" id="sender" required>
+                <label>Sender Name*:</label>
+                <input type="text" id="sendername" required>
+                <label>Teacher Email*:</label>
+                <input type="email" id="teacher-mail" required>
+                <label for="messageText">Message:</label>
+                <textarea id="messageText" rows="4" placeholder="Type your message..."></textarea><br>
+                <button type="submit" class="btn primary">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAppointmentModal()">&times;</span>
+            <h2>Take Appointment</h2>
+            <form id="appointmentForm">
+                <label>Student Name:</label>
+                <input type="text" id="studentName" required>
+
+                <label>Student Email:</label>
+                <input type="email" id="studentEmail" readonly>
+
+                <label>Teacher Email:</label>
+                <input type="email" id="teacherEmail" readonly>
+
+                <label>Start Time:</label>
+                <input type="datetime-local" id="startTime" required>
+
+                <button type="submit" class="btn primary">Confirm Appointment</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getFirestore, collection, query, doc, where, deleteDoc, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWIR8ZzkXR9bK6LiO4QSQRuqbPLHgrAxQ",
+            authDomain: "student-8d36e.firebaseapp.com",
+            projectId: "student-8d36e",
+            storageBucket: "student-8d36e.appspot.com",
+            messagingSenderId: "693544198236",
+            appId: "1:693544198236:web:60dac4a00533790c9c4699"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Email validation function
+        function validateEmail(email) {
+            const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zAZ]{2,6}$/;
+            return regex.test(email);
+        }
+
+        // Function to update the navigation bar based on the authentication state
+        function updateNavbar(user) {
+            const navButtons = document.getElementById("nav-buttons");
+            if (!navButtons) return;
+
+            if (user) {
+                navButtons.innerHTML = `<a href="#" id="logout-btn" class="btn primary">Logout</a>`;
+                document.getElementById("logout-btn").addEventListener("click", async () => {
+                    try {
+                        await signOut(auth);
+                        alert("You have logged out.");
+                        updateNavbar(null);
+                    } catch (error) {
+                        console.error("Logout Error:", error);
+                    }
+                });
+            } else {
+                navButtons.innerHTML = `<a href="#" id="auth-btn" class="btn primary">Login</a>`;
+            }
+        }
+
+        // Function to load teacher profiles with optional search query
+        async function loadTeacherProfiles(searchQuery = "") {
+            const teachersRef = collection(db, "users");
+            const teacherQuery = query(teachersRef, where("role", "==", "teacher"));
+
+            try {
+                const snapshot = await getDocs(teacherQuery);
+                const teachers = snapshot.docs.map(doc => doc.data());
+
+                const filteredTeachers = teachers.filter(teacher => {
+                    return (
+                        teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        teacher.subject.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+                });
+
+                const contentDiv = document.getElementById("content");
+                contentDiv.innerHTML = ""; // Clear content before adding teacher profiles
+
+                // Add search bar and button
+                const searchContainer = document.createElement("div");
+                searchContainer.innerHTML = `
+                    <input type="text" id="searchTeachers" class="searchcon" placeholder="Search Teachers..." />
+                    <button id="searchButton" class="btn primary">Search</button>
+                `;
+                contentDiv.appendChild(searchContainer);
+
+                // Add teacher cards
+                const teacherCardsDiv = document.createElement("div");
+                teacherCardsDiv.id = "teacher-cards";
+
+                filteredTeachers.forEach(teacher => {
+                    const card = document.createElement("div");
+                    card.classList.add("teacher-card");
+
+                    // Add teacher details
+                    card.innerHTML = `
+                        <div class="teacher-info">
+                            <h3>${teacher.name}</h3>
+                            <p>Subject: ${teacher.subject}</p>
+                            <p>Experience: ${teacher.experience}</p>
+                            <div class="teacher-details" style="display: none;">
+                                <p>Full Details:</p>
+                                <p><strong>Email:</strong> ${teacher.email}</p>
+                                <p><strong>Phone:</strong> ${teacher.mobile || "Not available"}</p>
+                                <p><strong>Current Working Place:</strong> ${teacher.workingPlace || "Not available"}</p>
+                                <p><strong>Description:</strong> ${teacher.description || "Not available"}</p>
+                                <p><strong>Date of Birth:</strong> ${teacher.dob || "Not available"}</p>
+                            </div>
+                            <button class="toggle-details-btn">View Details</button>
+                            <button class="submit" onclick="openAppointmentModal('${teacher.email}')">Take Appointment</button>
+                            <button class="mes-but">Message</button>
+                        </div>
+                    `;
+
+                    // Add event listener to toggle details
+                    const toggleDetailsBtn = card.querySelector(".toggle-details-btn");
+                    const teacherDetails = card.querySelector(".teacher-details");
+
+                    toggleDetailsBtn.addEventListener("click", () => {
+                        const isVisible = teacherDetails.style.display === "block";
+                        teacherDetails.style.display = isVisible ? "none" : "block";
+                        toggleDetailsBtn.textContent = isVisible ? "View Details" : "Hide Details";
+                    });
+
+                    // Message button
+                    const messageBtn = card.querySelector(".mes-but");
+                    messageBtn.addEventListener("click", () => {
+                        const modal = document.getElementById("messageModal");
+                        modal.style.display = "block";
+                    });
+
+                    teacherCardsDiv.appendChild(card);
+                });
+
+                contentDiv.appendChild(teacherCardsDiv);
+
+                // Attach the search event for clicking the search button
+                document.getElementById("searchButton").addEventListener("click", () => {
+                    const searchQuery = document.getElementById("searchTeachers").value;
+                    loadTeacherProfiles(searchQuery);
+                });
+
+            } catch (error) {
+                console.error("Error fetching teacher profiles:", error);
+            }
+        }
+
+        // Close the message modal when clicking the close button
+        document.querySelector(".close-btn").addEventListener("click", () => {
+            document.getElementById("messageModal").style.display = "none";
+        });
+
+        // Handle message form submission
+        document.getElementById("messageForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            // Get form values
+            const sender = document.getElementById("sender").value.trim();
+            const senderName = document.getElementById("sendername").value.trim();
+            const teacherMail = document.getElementById("teacher-mail").value.trim();
+            const messageText = document.getElementById("messageText").value.trim();
+
+            // Validation
+            if (!sender || !senderName || !teacherMail || !messageText) {
+                alert("All fields are required!");
+                return;
+            }
+
+            if (!validateEmail(sender) || !validateEmail(teacherMail)) {
+                alert("Please enter a valid email address!");
+                return;
+            }
+
+            try {
+                // ✅ Correct Firestore v9+ way to store messages
+                await addDoc(collection(db, "messages"), {
+                    senderEmail: sender,
+                    senderName: senderName,
+                    teacherEmail: teacherMail,
+                    message: messageText,
+                    timestamp: serverTimestamp()
+                });
+
+                alert("Message sent successfully!");
+
+                // Close modal and reset the form
+                document.getElementById("messageModal").style.display = "none";
+                document.getElementById("messageForm").reset();
+            } catch (error) {
+                console.error("Error sending message:", error);
+                alert("Failed to send message. Please try again.");
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            onAuthStateChanged(auth, (user) => {
+                updateNavbar(user);
+                const userEmailElement = document.getElementById("userEmail");
+                if (user && userEmailElement) {
+                    userEmailElement.innerText = ` ${user.email}`;
+                } else {
+                    setTimeout(() => {
+                        if (!window.location.href.includes("index.html")) {
+                            window.location.href = "index.html";
+                        }
+                    }, 500);
+                }
+            });
+
+            document.getElementById("teacher").addEventListener("click", () => {
+                loadTeacherProfiles();
+            });
+        });
+        window.openAppointmentModal = function (teacherEmail) {
+            const modal = document.getElementById("appointmentModal");
+            const user = auth.currentUser;
+
+            if (user) {
+                document.getElementById("studentEmail").value = user.email || "Unknown";
+                document.getElementById("teacherEmail").value = teacherEmail;
+
+                modal.style.display = "block";
+            } else {
+                alert("You need to be logged in to make an appointment.");
+            }
+        };
+
+        // Function to close the appointment modal
+        window.closeAppointmentModal = function () {
+            const modal = document.getElementById("appointmentModal");
+            modal.style.display = "none";
+        };
+
+        // Close the appointment modal when clicking the close button
+        document.querySelector("#appointmentModal .close-btn").addEventListener("click", window.closeAppointmentModal);
+
+        // Handle the appointment form submission
+        document.getElementById("appointmentForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const studentName = document.getElementById("studentName").value.trim();
+            const studentEmail = document.getElementById("studentEmail").value.trim();
+            const teacherEmail = document.getElementById("teacherEmail").value.trim();
+            const startTime = document.getElementById("startTime").value.trim();
+
+            if (!studentName || !studentEmail || !teacherEmail || !startTime) {
+                alert("All fields are required!");
+                return;
+            }
+
+            try {
+                // Save the appointment request with 'pending' status
+                await addDoc(collection(db, "appointments"), {
+                    studentName,
+                    studentEmail,
+                    teacherEmail,
+                    startTime,
+                    status: "pending",  
+                    timestamp: serverTimestamp(),
+                });
+
+                alert("Appointment request sent! Waiting for teacher approval.");
+
+                window.closeAppointmentModal();
+                document.getElementById("appointmentForm").reset();
+            } catch (error) {
+                console.error("Error requesting appointment:", error);
+                alert("Failed to send request. Please try again.");
+            }
+        });
+        async function loadMyAppointments() {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("You need to be logged in to view your appointments.");
+                return;
+            }
+
+            const contentDiv = document.getElementById("content");
+            contentDiv.innerHTML = "<h2>My Appointments</h2>";
+
+            try {
+                const appointmentsRef = collection(db, "appointments");
+                const q = query(appointmentsRef, where("studentEmail", "==", user.email));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    contentDiv.innerHTML += "<p>No appointments found.</p>";
+                    return;
+                }
+
+                const table = document.createElement("table");
+                table.innerHTML = `
+            <tr>
+                <th>Teacher Email</th>
+                <th>Start Time</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        `;
+
+                snapshot.forEach(docSnapshot => {
+                    const data = docSnapshot.data();
+                    const row = table.insertRow();
+                    row.insertCell(0).textContent = data.teacherEmail;
+                    row.insertCell(1).textContent = new Date(data.startTime).toLocaleString();
+                    row.insertCell(2).textContent = data.status;
+
+                    // Delete button
+                    const deleteCell = row.insertCell(3);
+                    const deleteButton = document.createElement("button");
+                    deleteButton.textContent = "Delete";
+                    deleteButton.style.backgroundColor = "#dc3545";
+                    deleteButton.style.color = "white";
+                    deleteButton.style.border = "none";
+                    deleteButton.style.padding = "6px 10px";
+                    deleteButton.style.borderRadius = "4px";
+                    deleteButton.style.cursor = "pointer";
+
+                    deleteButton.addEventListener("click", async () => {
+                        if (confirm("Are you sure you want to delete this appointment?")) {
+                            try {
+                                const appointmentDocRef = doc(db, "appointments", docSnapshot.id);
+                                await deleteDoc(appointmentDocRef);
+                                alert("Appointment deleted successfully.");
+                                loadMyAppointments(); // Reload the table
+                            } catch (error) {
+                                console.error("Error deleting appointment:", error);
+                                alert("Failed to delete appointment.");
+                            }
+                        }
+                    });
+
+                    deleteCell.appendChild(deleteButton);
+                });
+
+                contentDiv.appendChild(table);
+            } catch (error) {
+                console.error("Error fetching appointments:", error);
+                contentDiv.innerHTML += "<p>Failed to load appointments. Please try again.</p>";
+            }
+        }
+
+        // Add event listener to "My Appointment" menu option
+        document.getElementById("myappointment").addEventListener("click", loadMyAppointments);
+
+
+    </script>
+
+
+</body>
+
+</html>

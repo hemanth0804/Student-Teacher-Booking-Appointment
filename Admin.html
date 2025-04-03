@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="admin.css">
+    <title>Admin Dashboard</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, getDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWIR8ZzkXR9bK6LiO4QSQRuqbPLHgrAxQ",
+            authDomain: "student-8d36e.firebaseapp.com",
+            projectId: "student-8d36e",
+            storageBucket: "student-8d36e.appspot.com",
+            messagingSenderId: "693544198236",
+            appId: "1:693544198236:web:60dac4a00533790c9c4699"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        function updateNavbar(user) {
+            const navButtons = document.getElementById("nav-buttons");
+            if (!navButtons) return;
+            if (user) {
+                navButtons.innerHTML = `<a href="#" id="logout-btn" class="btn primary">Logout</a>`;
+                document.getElementById("logout-btn").addEventListener("click", async () => {
+                    try {
+                        await signOut(auth);
+                        alert("You have logged out.");
+                        updateNavbar(null);
+                        window.location.href = "index.html";
+                    } catch (error) {
+                        console.error("Logout Error:", error);
+                    }
+                });
+            } else {
+                navButtons.innerHTML = `<a href="#" class="btn primary" onclick="openPopup('loginPopup', event)">Login</a>`;
+            }
+        }
+        // Load Content for Different Sections
+        function loadContent(section) {
+            const content = document.getElementById("content");
+            if (!content) return;
+
+            if (section === "add-teacher") {
+                content.innerHTML = `
+            <h2>Add Teacher</h2>
+            <form id="teacherForm">
+                <label>Name:</label>
+                <input type="text" id="teacherName" required>
+
+                <label>Email:</label>
+                <input type="email" id="teacherEmail" required>
+
+                <label>Mobile No:</label>
+                <input type="text" id="teacherMobile" required>
+
+                <label>Password:</label>
+                <input type="password" id="teacherPassword" required>
+
+                <label>Confirm Password:</label>
+                <input type="password" id="teacherConfirmPassword" required>
+
+                <label>Subject:</label>
+                <input type="text" id="teacherSubject" required>
+
+                <button type="button" id="submitTeacherBtn">Submit</button>
+            </form>
+        `;
+                document.getElementById("submitTeacherBtn").addEventListener("click", submitTeacherForm);
+            } else if (section === "student-requests") {
+                content.innerHTML = `
+            <h2>Pending Student Requests</h2>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingStudentsTable"></tbody>
+            </table>
+        `;
+
+                loadPendingStudents(); // Load student requests
+            } else if (section === "update-teacher") {
+                content.innerHTML = `
+                        <h2>Update Teacher</h2>
+                        <input type="text" id="searchTeacher" placeholder="Search by name, email, or subject" onkeyup="filterTeachers()">
+                        <table border="1">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Mobile No</th>
+                                    <th>Subject</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacherTableBody"></tbody>
+                        </table>
+                    `;
+                loadTeachers();
+            }
+
+        }
+
+
+        // Function to Load Teachers
+        async function loadTeachers() {
+            const tableBody = document.getElementById("teacherTableBody");
+            if (!tableBody) return;
+
+            tableBody.innerHTML = ""; // Clear existing content
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "users")); // Fetch users
+                querySnapshot.forEach((docSnapshot) => {
+                    const teacher = docSnapshot.data();
+                    if (teacher.role === "teacher") { // Show only teachers
+                        const row = document.createElement("tr");
+                        row.innerHTML = ` 
+                    <td>${teacher.name || "N/A"}</td>
+                    <td>${teacher.email || "N/A"}</td>
+                    <td>${teacher.mobile || "N/A"}</td>
+                    <td>${teacher.subject || "N/A"}</td>
+                    <td>
+                        <button class="update-btn" onclick="updateTeacher('${docSnapshot.id}')">Update</button>
+                        <button class="delete-btn" onclick="deleteTeacher('${docSnapshot.id}')">Delete</button>
+                    </td>
+                `;
+                        tableBody.appendChild(row);
+                    }
+                });
+            } catch (error) {
+                console.error("Error fetching teachers:", error);
+            }
+        }
+
+        // Function to Delete a Teacher
+        window.deleteTeacher = async function (teacherId) {
+            if (confirm("Are you sure you want to delete this teacher?")) {
+                try {
+                    await deleteDoc(doc(db, "users", teacherId));
+                    alert("Teacher deleted successfully.");
+                    loadTeachers(); // Refresh the table after deletion
+                } catch (error) {
+                    console.error("Error deleting teacher:", error);
+                }
+            }
+        }
+
+        // Function to Update a Teacher
+        window.updateTeacher = async function (teacherId) {
+            const newName = prompt("Enter new name:");
+            const newMobile = prompt("Enter new mobile number:");
+            const newSubject = prompt("Enter new subject:");
+
+            if (newName && newMobile && newSubject) {
+                try {
+                    await updateDoc(doc(db, "users", teacherId), {
+                        name: newName,
+                        mobile: newMobile,
+                        subject: newSubject,
+                    });
+                    alert("Teacher updated successfully.");
+                    loadTeachers(); // Refresh the table after update
+                } catch (error) {
+                    console.error("Error updating teacher:", error);
+                }
+            } else {
+                alert("All fields are required!");
+            }
+        }
+
+        // Attach loadTeachers to window so it's accessible globally
+        window.loadTeachers = loadTeachers;
+
+
+        window.filterTeachers = function () {
+            const searchInput = document.getElementById("searchTeacher").value.toLowerCase();
+            const rows = document.querySelectorAll("#teacherTableBody tr");
+
+            rows.forEach((row) => {
+                const name = row.cells[0].innerText.toLowerCase();
+                const email = row.cells[1].innerText.toLowerCase();
+                const subject = row.cells[3].innerText.toLowerCase();
+
+                if (name.includes(searchInput) || email.includes(searchInput) || subject.includes(searchInput)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        };
+
+
+        // Register Teacher
+        async function submitTeacherForm() {
+            const name = document.getElementById("teacherName").value.trim();
+            const email = document.getElementById("teacherEmail").value.trim();
+            const mobile = document.getElementById("teacherMobile").value.trim();
+            const password = document.getElementById("teacherPassword").value.trim();
+            const confirmPassword = document.getElementById("teacherConfirmPassword").value.trim();
+            const subject = document.getElementById("teacherSubject").value.trim();
+            const role = "teacher";
+
+            if (!name || !email || !mobile || !password || !confirmPassword || !subject) {
+                alert("All fields are required!");
+                return;
+            }
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, "users", userCredential.user.uid), { name, email, role, mobile, subject });
+                alert("Registration successful!");
+                document.getElementById("teacherForm").reset();
+            } catch (error) {
+                console.error("Registration Error:", error);
+                alert(error.message);
+            }
+        }
+
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    try {
+                        const userDoc = await getDoc(doc(db, "users", user.uid));
+                        if (userDoc.exists() && userDoc.data().role === "admin") {
+                            updateNavbar(user);
+                            document.getElementById("userEmail").innerText = user.email;
+                        } else {
+                            alert("Access denied! Only admins can view this page.");
+                            window.location.href = "index.html";
+                        }
+                    } catch (error) {
+                        console.error("Error fetching user role:", error);
+                        window.location.href = "index.html";
+                    }
+                } else {
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 500);
+                }
+            });
+            async function loadPendingStudents() {
+                console.log("Loading pending student requests...");
+                const tableBody = document.getElementById("pendingStudentsTable");
+                if (!tableBody) return;
+
+                tableBody.innerHTML = "";
+                try {
+                    const querySnapshot = await getDocs(collection(db, "pending_requests"));
+                    querySnapshot.forEach((docSnapshot) => {
+                        const student = docSnapshot.data();
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>${student.email}</td>
+                    <td>
+                        <button onclick="approveStudent('${docSnapshot.id}', '${student.email}', '${student.name}')">Approve</button>
+                        <button onclick="rejectStudent('${docSnapshot.id}')">Reject</button>
+                    </td>
+                `;
+                        tableBody.appendChild(row);
+                    });
+                } catch (error) {
+                    console.error("Error fetching pending students:", error);
+                }
+            }
+
+            window.loadPendingStudents = loadPendingStudents;
+
+            window.approveStudent = async function (docId, email, name) {
+                const password = prompt("Set a password for the student:");
+                if (!password) {
+                    alert("Password is required!");
+                    return;
+                }
+
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    await setDoc(doc(db, "users", userCredential.user.uid), { name, email, role: "student" });
+                    await deleteDoc(doc(db, "pending_requests", docId)); // Ensure correct deletion
+                    alert("Student approved and account created!");
+                    loadPendingStudents();
+                } catch (error) {
+                    console.error("Approval Error:", error);
+                    alert(error.message);
+                }
+            };
+
+            window.rejectStudent = async function (docId) {
+                if (confirm("Are you sure you want to reject this request?")) {
+                    try {
+                        await deleteDoc(doc(db, "pending_requests", docId));
+                        alert("Student request rejected.");
+                        loadPendingStudents();
+                    } catch (error) {
+                        console.error("Error rejecting student:", error);
+                    }
+                }
+            };
+
+            document.getElementById("addTeacher")?.addEventListener("click", () => loadContent("add-teacher"));
+            document.getElementById("studentRequests")?.addEventListener("click", () => loadContent("student-requests"));
+            document.getElementById("updateTeacher")?.addEventListener("click", () => loadContent("update-teacher"));
+        });
+    </script>
+</head>
+
+<body>
+    <div class="admin-con">
+        <div class="header">
+            <img src="images/freepik__the-style-is-candid-image-photography-with-natural__4443.png">
+            <div id="nav-buttons"></div>
+        </div>
+        <div class="menu">
+            <div class="profile">
+                <img src="images/profile.png">
+                <p id="userEmail">Checking user...</p>
+            </div>
+            <div class="menuoptions">
+                <ul><a href="#" id="addTeacher"><img src="images/add.png">Add Teacher</a></ul>
+                <ul><a href="#" id="studentRequests"><img src="images/add.png">Student Requests</a></ul>
+                <ul><a href="#" id="updateTeacher"><img src="images/add.png">Update Teacher</a></ul>
+            </div>
+        </div>
+        <div id="content" class="content">Select an option from the menu.</div>
+    </div>
+</body>
+
+</html>

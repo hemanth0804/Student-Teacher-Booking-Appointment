@@ -1,0 +1,319 @@
+.tech-con {
+    width: 100%;
+    height: 100vh; 
+    display: grid;
+    grid-template-rows: 100px auto; 
+    grid-template-columns: 300px auto; 
+    border-radius: 10px;
+}
+/* Header */
+.header {
+    grid-column: 1 / span 2;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #6A0DAD; 
+    padding: 15px 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    color: white;
+
+}
+.header img {
+    width: 300px;
+    height: auto;
+}
+
+.header .btn {
+    text-decoration: none;
+    padding: 8px 15px;
+    margin-left: 10px;
+    border-radius: 5px;
+    color: white;
+}
+
+.btn.primary {
+    background: #20C997;
+    border: none;
+}
+/* Sidebar / Menu */
+.menu {
+    color: black;
+    border-right: 1px solid black;
+    background-color:white;
+}
+.menu .profile{
+    display: flex;
+    border-bottom: black;
+    background-color: whitesmoke;
+    padding: 5px;
+    border-radius: 10px;
+}
+.menu p{
+    font-weight: bold;
+}
+.menu img{
+    width:40px;
+    height: 40px;
+}
+.menu ul{
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    background-color: whitesmoke;
+    height: 50px;
+    text-align: left;
+    margin: 2px;
+}
+.menu ul img{
+    width: 20px;
+    height: 20px;
+}
+.menu ul a {
+    text-decoration: none;
+    color: black;
+    display: block; 
+    margin-top: 10px; 
+}
+/* Teacher Profile Details Styling */
+#content {
+    justify-content: center;
+    overflow: auto;
+}
+.container {
+    width: 100%;  
+    margin: 0 auto;  
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Label and input styling */
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    margin-left: 10px;
+    display: block;
+    color: #555;
+}
+
+input[type="text"],
+textarea,
+input[type="date"] {
+    width: 95%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: #fafafa;
+}
+
+textarea {
+    height: 100px;
+}
+
+/* Save button styling */
+button#save-profile,#cancel-edit {
+    background-color: #4CAF50;
+    color: white;
+    margin-left: 30px;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    align-self: center; 
+}
+
+button#save-profile:hover {
+    background-color: #45a049;
+}
+
+button:focus {
+    outline: none;
+}
+
+button#save-profile:active {
+    background-color: #388e3c;
+}
+
+p {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #4CAF50;
+    background-color: #fff;
+    outline: none;
+}
+/* Main container for profile layout */
+.container {
+    width: 80%;
+    max-width: 1000px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading styling */
+h2 {
+    text-align: center;
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* Profile section styling */
+#view-profile {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile details */
+#view-profile p {
+    font-size: 16px;
+    margin: 12px 0;
+}
+
+#view-profile strong {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Style for the Edit button */
+#edit-profile {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 25px;
+    background-color: #3498db;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+#edit-profile:hover {
+    background-color: #2980b9;
+}
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
+    color: #333;
+    font-weight: bold;
+}
+
+td {
+    background-color: #fff;
+    color: #555;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+caption {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+button {
+    font-size: 16px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+.complete-btn {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+
+.complete-btn:hover {
+    background-color: #45a049;
+}
+
+/* Delete button */
+.delete-btn {
+    background-color: #f44336; /* Red */
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+/* Responsive Styles for Mobile */
+@media screen and (max-width: 600px) {
+    table {
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+}
+
+
+/* Mobile responsiveness: Adjust width for smaller screens */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    #view-profile p {
+        font-size: 14px;
+    }
+
+    #edit-profile {
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+    }
+}
