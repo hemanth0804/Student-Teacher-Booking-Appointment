@@ -135,24 +135,10 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
-
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCWIR8ZzkXR9bK6LiO4QSQRuqbPLHgrAxQ",
-            authDomain: "student-8d36e.firebaseapp.com",
-            projectId: "student-8d36e",
-            storageBucket: "student-8d36e.appspot.com",
-            messagingSenderId: "693544198236",
-            appId: "1:693544198236:web:60dac4a00533790c9c4699"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        
+        import { app, auth, db } from "./firebase-config.js"; 
+        import {  createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+        import {  doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
 
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("registerForm").addEventListener("submit", async (e) => {
